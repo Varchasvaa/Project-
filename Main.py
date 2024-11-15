@@ -1,65 +1,144 @@
 from customtkinter import *
 from PIL import Image, ImageTk
 import mysql.connector 
+from datetime import datetime
+from trial import register,customer
+    
 #win.winfoscreenheight/width() 
 win=CTk()
 frame=str(win.winfo_screenwidth())+'x'+str(win.winfo_screenheight())
-win.geometry('1980x1080')
+win.geometry('1536x864')
 set_appearance_mode("light")  
 set_default_color_theme("blue")  
+#getting the current date 
+current_date = datetime.now().date()  
+print("Current date:", current_date)
+curdate=str(current_date)
+date=curdate[len(curdate)-2:]
+
+
+
+def EnterBB3(e):
+    bframe.configure(width=650)
+    binfo.place(x=1110,y=310)
+def LeaveBB3(e):
+    bframe.configure(width=310)
+    binfo.place(x=-1110,y=310)
+
+def EnterS(e):
+    sframe.configure(width=650)
+    sinfo.place(x=360,y=300)
+def LeaveS(e):
+    sframe.configure(width=310)
+    sinfo.place(x=-1110,y=310)
 
 def option(op):
     print(op)
 
+def back():
+    sframe.place(x=45,y=295)
+    Singham.place(x=50,y=300)
+    bframe.place(x=(800-5),y=295)
+    BB3.place(x=800,y=300)
+    button.place(x=1234,y=12)
+    dropdown.place(x=500,y=12)
+    back_button.place(x=-10000,y=0)
+    background_label.configure(image=background_image)
+
+
+
 def movieclicked1(e):
     print('Singham')
+    back_button.place(x=1234,y=12)
+    sframe.place(x=-1100,y=0)
+    bframe.place(x=-1100,y=0)
+    dropdown.place(x=-1100,y=0)
+    button.place(x=-1100,y=0)
+    BB3.place(x=-1100,y=0)
+    Singham.place(x=-1150,y=300)
+    background_label.configure(image=blank)
+
 
 def movieclicked2(e):
-    print('BB3')
+    back_button.place(x=1234,y=12)
+    sframe.place(x=-1100,y=0)
+    bframe.place(x=-1100,y=0)
+    dropdown.place(x=-1100,y=0)
+    button.place(x=-1100,y=0)
+    BB3.place(x=-1100,y=0)
+    Singham.place(x=-1150,y=300)
+    background_label.configure(image=blank)
 
 print(frame)
+#Images 
+
 background_image =CTkImage(Image.open("whitegradient .png"), size=(win.winfo_screenwidth(), win.winfo_screenheight()))
 Movie1=CTkImage(Image.open('Movie1.png'),size=(300,400))
 Movie2=CTkImage(Image.open('Movie2.jpg'),size=(300,400))
 infos=CTkImage(Image.open('sinfo.png'),size=(300,400))
 infob=CTkImage(Image.open('Binfo.png'),size=(300,390))
+blank=CTkImage(Image.open('Home.png'),size=(win.winfo_screenwidth(), win.winfo_screenheight()))
+bannerS=CTkImage(Image.open('MovieBanner1.png'),size=(900,430))
+banner=CTkImage(Image.open('Binfo.png'),size=(600,330))
+#background 
 background_label = CTkLabel(win, image=background_image, text="")
 background_label.place(relwidth=1, relheight=1) 
 
+banner_label=CTkFrame(win, width=1536, height=500,corner_radius=15,fg_color="purple",bg_color='white')
 
 # Movie 1 widgets (Singham)
 
-sframe=CTkFrame(win, width=650, height=410,corner_radius=15,fg_color="purple",bg_color='white')
+sframe=CTkFrame(win, width=310, height=410,corner_radius=15,fg_color="purple",bg_color='white')
 sframe.place(x=45,y=295)
 Singham=CTkLabel(win,image=Movie1,text='',fg_color="purple")
 Singham.place(x=50,y=300)
 Singham.bind("<Button-1>",movieclicked1)
+banner_singham=CTkLabel(win,text="",image=bannerS)
+banner_singham.place()
+
+#animation
+Singham.bind("<Leave>",LeaveS)
+Singham.bind("<Enter>",EnterS)
 
 sinfo=CTkLabel(win,image=infos,fg_color="purple",bg_color="purple",text="")
-sinfo.place(x=360,y=300)
+sinfo.place()
 
 
 #Movie 2 widgets (BB3) 
 
-bframe=CTkFrame(win, width=650, height=410,corner_radius=15,fg_color="purple",bg_color='white')
+bframe=CTkFrame(win, width=310, height=410,corner_radius=15,fg_color="purple",bg_color='white')
 bframe.place(x=(800-5),y=295)
 BB3=CTkLabel(win,image=Movie2,text='',fg_color="purple",bg_color='purple')
 BB3.place(x=800,y=300)
 BB3.bind("<Button-1>",movieclicked2)
+#animation
+BB3.bind("<Leave>",LeaveBB3)
+BB3.bind("<Enter>",EnterBB3)
+
 binfo=CTkLabel(win,image=infob,fg_color="purple",bg_color="purple",text="")
-binfo.place(x=1110,y=310)
+binfo.place()
+
+
 #Home widgets 
 
 
-button=CTkButton(win,text="   Login/Register  ",font=(("Arial"),20),fg_color="purple",bg_color='white')
+button=CTkButton(win,text="   Login/Register  ",font=(("Arial"),20),fg_color="purple",bg_color='white',command=register)
 button.place(x=1234,y=12)
+
+back_button=CTkButton(win,text="back",font=(("Arial"),20),fg_color="purple",bg_color='white',command=back)
+back_button.place()
+
+
 a="                                                                         "
-options=["Mumbai  "+a ,"Delhi-NCR "+a,"Bengaluru  "+a,'Hyderabad   '+a]
+
+options=["Mumbai  "+a ,"Delhi-NCR "+a]
 dropdown = CTkOptionMenu(win, values=options,font=(("Arial"),20), command=option,fg_color="violet",bg_color="white",button_color="violet",button_hover_color="purple")
 dropdown.set("  Select your City                                        ") 
 dropdown.place(x=500,y=12)
 
-contact=CTkLabel(master=background_label,text="Contact",font=("arial",20),text_color="black",fg_color="#f5f5f5")
-contact.place(x=400,y=70)
+#contact=CTkLabel(master=background_label,text="Contact",font=("arial",20),text_color="black",fg_color="#f5f5f5")
+#contact.place(x=400,y=70)
+
+book=CTkButton(win,text="Book Tickets",font=(("TimesNewRoman"),50),fg_color="purple",bg_color='white')
 
 win.mainloop()
