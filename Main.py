@@ -3,7 +3,16 @@ from PIL import Image, ImageTk
 import mysql.connector 
 from datetime import datetime,timedelta
 from App import register,customer
-    
+from tkinter import messagebox
+
+
+mydb = mysql.connector.connect(host="localhost",user="root",password="varchasva",database='Info')
+try:
+    cursor=mydb.cursor()
+    cursor.execute("Create table Booking_Info(Customer varchar(50),City varchar(30),Movie varchar(25),Time varchar(20),Seats varchar(25))"  )
+except:
+    mydb.close()
+
 #win.winfoscreenheight/width() 
 win=CTk()
 frame=str(win.winfo_screenwidth())+'x'+str(win.winfo_screenheight())
@@ -20,7 +29,7 @@ day = current_date.strftime("%A")
 month_name = current_date.strftime("%B")
 
 coming_day_date = current_date + timedelta(days=1)
-Next_day = coming_day_date.strftime("%A")  # Full weekday name (e.g., "Monday")
+Next_day = coming_day_date.strftime("%A")  # 
  
 
 def EnterBB3(e):
@@ -37,11 +46,117 @@ def LeaveS(e):
     sframe.configure(width=310)
     sinfo.place(x=-1110,y=310)
 
+def EnterPush(e):
+    Pushframe.configure(width=650)
+    Pushinfo.place(x=725,y=295)
+def LeavePush(e):
+    Pushframe.configure(width=310)
+    Pushinfo.place(x=-1110,y=310)
+
+def Enterbj(e):
+    Bjframe.configure(width=650)
+    Bjframe.place(x=860,y=295)
+    Bjohninfo.place(x=880,y=310)
+def Leavebj(e):
+    Bjframe.configure(width=310)
+    Bjframe.place(x=795+380,y=295)
+    Bjohninfo.place(x=-1110,y=310)
+
 option=""
-def option(op):
+def opt(op):
     global option
     option=str(op)
     print(option)
+
+#Seat management 
+rows=6
+columns=8
+seats={}
+selected_seat=[]
+
+def seat_select(s):
+    print(s)
+    button=seats[s]
+    if button.cget('fg_color')=="lightgray":
+        button.configure(fg_color="Green")
+        selected_seat.append(button.cget('text'))
+    elif button.cget('fg_color')=="Green":
+        selected_seat.remove(button.cget('text'))
+        button.configure(fg_color="lightgray")
+    elif button.cget('fg_color')=="Red":
+        pass
+    s_label()
+    
+def s_label():
+    text=seat_label.cget('text')
+    Sname=''
+    if selected_seat==[]:
+        seat_label.configure(text="Seat selected:None")
+    else:
+        for i in selected_seat:
+            Sname=Sname+' '+i
+        seat_label.configure(text="Seat selected:"+Sname)
+
+def seat_struc():
+    for row in range(rows):
+        for column in range(columns):
+            SID=chr(65+row)+str(column+1)
+            button=CTkButton(seat_frame,text=SID,fg_color="lightgray",text_color="Purple",font=("Timesnewroman",18),width=50,height=50,command=lambda s=SID:seat_select(s))
+            button.grid(row=row,column=column,padx=5,pady=5)
+            seats[SID]=button
+    print("Succesfull")
+    list=check_seat()
+    print(list)
+    for i in list:
+        if i in seats==True:
+            button=seats[i]
+            button.configure(fg_color="Red")
+
+def check_seat():
+    db = mysql.connector.connect(host="localhost",user="root",password="varchasva",database='Info')
+    cursor=db.cursor()    
+    cursor.execute("select Seats from booking_info where Movie='{0}' ".format(movie_selected))
+    list=[]
+    for i in cursor:
+        print(i)
+        list.extend(i)
+    print(list)
+    return list
+
+
+time_selected=''
+def open_seat(time):
+    global time_selected
+    time_selected=time
+    back_time.place(x=1234,y=12)
+    book.place(x=1234,y=622)
+    seat_frame.pack(pady=60, padx=35)
+    seat_label.pack()
+    time_clicked()
+    seat_struc()
+
+def book_confirm():
+    text=seat_label.cget('text')
+    if text=="Seat selected:None":
+        a=CTkLabel(win,text="No Seats are Selected",font=("Timesnewroman",20),text_color="black")
+        a.pack()
+    print(customer,movie_selected,option,time_selected,selected_seat)
+
+    response = messagebox.askyesno("Confirmation", "Do you want to proceed?")
+    if response:
+        messagebox.showinfo("Confirmed", "You chose to proceed.")
+        load()
+    else:
+        messagebox.showinfo("Cancelled", "You cancelled the operation.")
+
+
+def load():
+    db = mysql.connector.connect(host="localhost",user="root",password="varchasva",database='Info')
+    cursor=db.cursor()
+    try:    
+        cursor.execute("Insert into booking_info values('{0}','{1}','{2}','{3}') ",format(customer,option,movie_selected,time_selected,selected_seat))
+    except:
+        print("Error was occured")
 
 def back():
     th1.place(x=0,y=-3000)
@@ -52,26 +167,33 @@ def back():
     BB3.place(x=800,y=300)
     button.place(x=1234,y=12)
     dropdown.place(x=500,y=12)
+    Pushframe.place(x=45+380,y=295)
+    Pushpa.place(x=50+380,y=300)
+    Bjohn.place(x=800+380,y=300)
+    Bjframe.place(x=795+380,y=295)
     back_button.place(x=-10000,y=0)
     background_label.configure(image=background_image)
     tab.place(x=-1000,y=-23)
-# Creating a pop-up window for selecting seat 
-def open_seat():
-    popup = CTkToplevel(win)
-    popup.geometry("500x500")
-    popup.title("Forced Pop-Up")
 
-    
-    popup.grab_set()  
-    popup.resizable(False, False)  
-    
-    label = CTkLabel(popup, text="This is a forced pop-up!", font=("Arial", 16))
-    label.pack(pady=20)
-    
-    close_button = CTkButton(popup, text="Close", command=popup.destroy)
-    close_button.pack(pady=10)
 
-    popup.transient(win)
+def confirm_location():
+    global option
+    if option=="":
+        popup = CTkToplevel(win)
+        popup.geometry("500x200")
+        popup.title("Location not choosen")  
+        popup.grab_set()  
+        popup.resizable(False, False)  
+        
+        label = CTkLabel(popup, text="Pleases select location first", font=("Arial", 26))
+        label.pack(pady=20)
+        
+        close_button = CTkButton(popup, text="Close", command=popup.destroy)
+        close_button.pack(pady=10)
+
+        popup.transient(win)
+    else:
+        pass
 
 
 def movieclicked():
@@ -81,48 +203,129 @@ def movieclicked():
     dropdown.place(x=-1100,y=0)
     button.place(x=-1100,y=0)
     BB3.place(x=-1100,y=0)
+    Pushpa.place(x=-1100,y=0)
+    Pushframe.place(x=-1100,y=0)
+    Bjframe.place(x=-1100,y=0)
+    Bjohn.place(x=-1100,y=0)
     Singham.place(x=-1150,y=300)
     background_label.configure(image=blank)
 
-#def tabview(e):
- #   th1.configure(master=date2)
- #   th2.configure(master=date2)
+    back_time.place(x=-1234,y=12)
+    seat_frame.place(x=-1234,y=12)
+    seat_label.place(x=-1234,y=12)
 
+
+def seat_back():
+        global selected_seat
+        seat_label.configure(text="Seat selected:None")
+        selected_seat=[]
+        back_button.place(x=1234,y=12)
+        th1.place(x=0,y=100)
+        th2.place(x=0,y=300)
+        time1.place(x=400,y=180)
+        time3.place(x=400,y=380)
+        tab.pack(pady=60, padx=30)
+        background_label.configure(image=blank)
+        back_time.place(x=-1234,y=12)
+        seat_frame.place(x=-1234,y=12)
+        seat_label.place(x=-1234,y=12)
+        book.place(x=-1234,y=12)
+
+def time_clicked():
+        back_button.place(x=-1234,y=12)
+        th1.place(x=0,y=-1100)
+        th2.place(x=0,y=-1300)
+        time1.place(x=400,y=-1180)
+        time3.place(x=400,y=-1180)
+        tab.place(x=-1999,y=0)
+        background_label.configure(image=Cinema_image)
+
+
+movie_selected=''
 def movieclicked1(e):
-    global option 
+    global option,movie_selected
+    movie_selected="bhool bhulaiya 3"
     if option=="":
         back()
+        confirm_location()
         print("worked")
-        pass
-    movieclicked()
-    th1.place(x=0,y=100)
-    th2.place(x=0,y=300)
-    time1.place(x=400,y=180)
-    tab.pack(pady=60, padx=30)
+    else:
+        movieclicked()
+        th1.place(x=0,y=100)
+        th2.place(x=0,y=300)
+        time1.place(x=400,y=180)
+        time3.place(x=400,y=380)
+        tab.pack(pady=60, padx=30)
 
 def movieclicked2(e):
-    global option 
+    global option,movie_selected
+    movie_selected="Singham Again"
     if option=="":
         back()
+        confirm_location()
         print("worked")
-        pass
-    movieclicked()
-    th1.place(x=0,y=100)
-    th2.place(x=0,y=300)
-    time1.place(x=400,y=180)
-    tab.pack(pady=60, padx=30)
+    else:
+        movieclicked()
+        th1.place(x=0,y=100)
+        th2.place(x=0,y=300)
+        time1.place(x=400,y=180)
+        time3.place(x=400,y=380)
+        tab.pack(pady=60, padx=30)
+
+def movieclicked3(e):
+    global option,movie_selected
+    movie_selected="Pushpa 2"
+    if option=="":
+        back()
+        confirm_location()
+        print("worked")
+    else:
+        movieclicked()
+        th1.place(x=0,y=100)
+        th2.place(x=0,y=300)
+        time1.place(x=400,y=180)
+        time3.place(x=400,y=380)
+        tab.pack(pady=60, padx=30)
+
+def movieclicked4(e):
+    global option,movie_selected
+    movie_selected="Baby John"
+    if option=="":
+        back()
+        confirm_location()
+        print("worked")
+    else:
+        movieclicked()
+        th1.place(x=0,y=100)
+        th2.place(x=0,y=300)
+        time1.place(x=400,y=180)
+        tab.pack(pady=60, padx=30)
+        time3.place(x=400,y=380)
+        Bjframe.place(x=-1999,y=0)
+
 
 print(frame)
 #Images 
 
 background_image =CTkImage(Image.open("whitegradient .png"), size=(win.winfo_screenwidth(), win.winfo_screenheight()))
+Cinema_image=CTkImage(Image.open('cinema.png'),size=(win.winfo_screenwidth(), win.winfo_screenheight()))
+
 Movie1=CTkImage(Image.open('Movie1.png'),size=(300,400))
 Movie2=CTkImage(Image.open('Movie2.jpg'),size=(300,400))
+Movie3=CTkImage(Image.open('Movie3.png'),size=(300,400))
+Movie4=CTkImage(Image.open('Movie4.png'),size=(300,400))
+
 infos=CTkImage(Image.open('sinfo.png'),size=(300,400))
 infob=CTkImage(Image.open('Binfo.png'),size=(300,390))
+infoP=CTkImage(Image.open('Pinfo.png'),size=(300,400))
+infoBJ=CTkImage(Image.open('Bjinfo.png'),size=(300,390))
+
+
 blank=CTkImage(Image.open('Home.png'),size=(win.winfo_screenwidth(), win.winfo_screenheight()))
 bannerS=CTkImage(Image.open('MovieBanner1.png'),size=(900,430))
 banner=CTkImage(Image.open('Binfo.png'),size=(600,330))
+
+
 theater1=CTkImage(Image.open('theater1.png'),size=(1543,750))
 theater2=CTkImage(Image.open('theater2.png'),size=(1543,750))
 
@@ -147,14 +350,13 @@ banner_singham.place()
 Singham.bind("<Leave>",LeaveS)
 Singham.bind("<Enter>",EnterS)
 
-sinfo=CTkLabel(win,image=infos,fg_color="purple",bg_color="purple",text="")
-sinfo.place()
+
 
 
 #Movie 2 widgets (BB3) 
 
 bframe=CTkFrame(win, width=310, height=410,corner_radius=15,fg_color="purple",bg_color='white')
-bframe.place(x=(800-5),y=295)
+bframe.place(x=795,y=295)
 BB3=CTkLabel(win,image=Movie2,text='',fg_color="purple",bg_color='purple')
 BB3.place(x=800,y=300)
 BB3.bind("<Button-1>",movieclicked2)
@@ -162,8 +364,30 @@ BB3.bind("<Button-1>",movieclicked2)
 BB3.bind("<Leave>",LeaveBB3)
 BB3.bind("<Enter>",EnterBB3)
 
-binfo=CTkLabel(win,image=infob,fg_color="purple",bg_color="purple",text="")
-binfo.place()
+
+
+#Movie 3 widgets 
+Pushframe=CTkFrame(win, width=310, height=410,corner_radius=15,fg_color="purple",bg_color='white')
+Pushframe.place(x=45+380,y=295)
+Pushpa=CTkLabel(win,image=Movie3,text='',fg_color="purple")
+Pushpa.place(x=50+380,y=300)
+Pushpa.bind("<Button-1>",movieclicked3)
+#animation
+Pushpa.bind("<Leave>",LeavePush)
+Pushpa.bind("<Enter>",EnterPush)
+
+
+#Movie4
+Bjframe=CTkFrame(win, width=310, height=410,corner_radius=15,fg_color="purple",bg_color='white')
+Bjframe.place(x=795+380,y=295)
+Bjohn=CTkLabel(win,image=Movie4,text='',fg_color="purple")
+Bjohn.place(x=800+380,y=300)
+Bjohn.bind("<Button-1>",movieclicked4)
+#animation
+Bjohn.bind("<Leave>",Leavebj)
+Bjohn.bind("<Enter>",Enterbj)
+
+
 
 #Theater 
 
@@ -185,13 +409,14 @@ th2=CTkLabel(date1,image=theater2,text='',fg_color='white')
 
 #Time slot
 
-time1=CTkButton(date1,text='10:30',font=("Arial", 26),fg_color='lightgray',text_color="Black",bg_color="white",hover_color="gray",corner_radius=5)
-
+time1=CTkButton(date1,command=lambda:open_seat('10:30 am'),text='10:30 am',font=("Arial", 26),fg_color='lightgray',text_color="Black",bg_color="white",hover_color="gray",corner_radius=5)
+time2=CTkButton(date1,command=lambda:open_seat('02:00 pm'),text='02:00 pm',font=("Arial", 26),fg_color='lightgray',text_color="Black",bg_color="white",hover_color="gray",corner_radius=5)
+time3=CTkButton(date1,command=lambda:open_seat('09:00 pm'),text='09:00 pm',font=("Arial", 26),fg_color='lightgray',text_color="Black",bg_color="white",hover_color="gray",corner_radius=5)
 
 #Home widgets 
 
 
-button=CTkButton(win,text="   Login/Register  ",font=(("Arial"),20),fg_color="purple",bg_color='white',command=register)
+button=CTkButton(win,text="   "+customer+"  ",font=(("Arial"),20),fg_color="purple",bg_color='white',command=register)
 button.place(x=1234,y=12)
 
 back_button=CTkButton(win,text="back",font=(("Arial"),20),fg_color="purple",bg_color='white',command=back)
@@ -201,13 +426,33 @@ back_button.place()
 a="                                                                         "
 
 options=["Mumbai  "+a ,"Delhi-NCR "+a]
-dropdown = CTkOptionMenu(win, values=options,font=(("Arial"),20), command=option,fg_color="violet",bg_color="white",button_color="violet",button_hover_color="purple")
-dropdown.set("  Select your City                                        ") 
+dropdown = CTkOptionMenu(win, values=options,font=(("Arial"),20), command=opt,fg_color="violet",bg_color="white",button_color="violet",button_hover_color="purple")
+dropdown.set("  Select your City"+a) 
 dropdown.place(x=500,y=12)
 
 #contact=CTkLabel(master=background_label,text="Contact",font=("arial",20),text_color="black",fg_color="#f5f5f5")
 #contact.place(x=400,y=70)
 
-book=CTkButton(win,text="Book Tickets",font=(("TimesNewRoman"),50),fg_color="purple",bg_color='white')
+book=CTkButton(win,command=book_confirm,text="Confirm Booking",font=(("TimesNewRoman"),30),fg_color="purple",bg_color='white')
 
+
+back_time=CTkButton(win,text="back",font=(("Arial"),20),fg_color="purple",bg_color='white',command=seat_back)
+seat_frame=CTkFrame(win, width=510, height=510,corner_radius=15,fg_color="purple",bg_color='white')
+seat_label=CTkLabel(win,text="Seat selected:None",font=("Timesnewroman",20),text_color="black")
+
+#Info label
+binfo=CTkLabel(win,image=infob,fg_color="purple",bg_color="purple",text="")
+binfo.place()
+Bjohninfo=CTkLabel(win,image=infoBJ,fg_color="purple",bg_color="purple",text="")
+Bjohninfo.place()
+Pushinfo=CTkLabel(win,image=infoP,fg_color="purple",bg_color="purple",text="")
+Pushinfo.place()
+sinfo=CTkLabel(win,image=infos,fg_color="purple",bg_color="purple",text="")
+sinfo.place()
+
+
+
+
+
+#if customer!="":
 win.mainloop()

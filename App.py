@@ -1,8 +1,8 @@
 from customtkinter import *
 from PIL import Image, ImageTk
 import mysql.connector
-
 x=0
+already=False
 customer=""
 def register():
     win=CTk()
@@ -69,6 +69,7 @@ def register():
         win.geometry('600x400')
 
     def submit(log):
+        global customer
         db = mysql.connector.connect(host="localhost",user="root",password="varchasva",database='Info')
         cursor=db.cursor()
         Email=username.get()
@@ -79,17 +80,20 @@ def register():
             pass
         if log=="Sign-in":
             try:
-                cursor.execute('insert into Customerinformation values("'+Email.lower()+'",'+'"'+Password+'")')
+                cursor.execute('insert into Customerinformation values("'+Email.lower()+'",'+'"'+str(Password)+'")')
                 db.commit()
-                starts()
+                startl()
+                customer=Email.lower().split("@")[0]
             except:
-                print('ERrrrrr-OR')
+                print('ERROR or ')
+                print('Account Already exists ')
+    
         elif log=="Login":
             cursor.execute("select * from Customerinformation")
             for i in cursor:
                 print(i)
+                print(i[0],Email.lower(),i[1],Password)
                 if i[0]==Email.lower()and i[1]==Password:
-                    global customer
                     customer=Email.lower().split("@")[0]
                     print(customer)
                     win.destroy()
@@ -118,10 +122,14 @@ def register():
     bk=CTkButton(win,text='Back',hover_color="blue",font=('Arial',18),corner_radius=32,command=lambda:back())
     bk.place()
 
-    Lsub=CTkButton(frame,text="Submit ",font=('Arial',18),corner_radius=32,command=lambda:submit('Sign-in'))
-    Ssub=CTkButton(frame,text="Submit",font=('Arial',18),corner_radius=32,command=lambda:submit("Login"))
+    Lsub=CTkButton(frame,text="Submit-S ",font=('Arial',18),corner_radius=32,command=lambda:submit('Login'))
+    Ssub=CTkButton(frame,text="Submit-L",font=('Arial',18),corner_radius=32,command=lambda:submit("Sign-in"))
 
 
     welcome()
     win.mainloop()
- 
+    return customer
+'''
+if already==False:
+    register()
+    already=True'''
