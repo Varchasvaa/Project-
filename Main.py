@@ -108,19 +108,23 @@ def seat_struc():
     list=check_seat()
     print(list)
     for i in list:
-        if i in seats==True:
-            button=seats[i]
-            button.configure(fg_color="Red")
+        print(i)
+        print(i,i in seats)
+        if i in seats:
+            but=seats[i]
+            but.configure(fg_color="Red")
 
 def check_seat():
     db = mysql.connector.connect(host="localhost",user="root",password="varchasva",database='Info')
-    cursor=db.cursor()    
-    cursor.execute("select Seats from booking_info where Movie='{0}' ".format(movie_selected))
+    cursor=db.cursor() 
+    print("select Seats from booking_info where Movie='{0}' and City='{1}' and Time={2} ".format(movie_selected,option.strip(),time_selected))   
+    cursor.execute("select Seats from booking_info where Movie='{0}' and City='{1}'and Time='{2}'".format(movie_selected,option.strip(),time_selected))
     list=[]
     for i in cursor:
-        print(i)
-        list.extend(i)
-    print(list)
+        for j in range(len(i)):
+                l=i[j].split(',')
+                list.extend(l)
+    print("the list",list)
     return list
 
 
@@ -145,18 +149,44 @@ def book_confirm():
     response = messagebox.askyesno("Confirmation", "Do you want to proceed?")
     if response:
         messagebox.showinfo("Confirmed", "You chose to proceed.")
-        load()
+        l=load()
+        if l==True:
+            postbooking()
+        else:
+            pass
     else:
         messagebox.showinfo("Cancelled", "You cancelled the operation.")
+    
 
 
 def load():
     db = mysql.connector.connect(host="localhost",user="root",password="varchasva",database='Info')
     cursor=db.cursor()
-    try:    
-        cursor.execute("Insert into booking_info values('{0}','{1}','{2}','{3}') ",format(customer,option,movie_selected,time_selected,selected_seat))
+    seatselect=""
+    for i in selected_seat:
+        seatselect+=i+','
+    try:
+        print("Insert into booking_info values('{0}','{1}','{2}','{3}','{4}') ".format(customer,option.strip(),movie_selected,time_selected,seatselect[:-1]))  
+        cursor.execute("Insert into booking_info values('{0}','{1}','{2}','{3}','{4}') ".format(customer,option.strip(),movie_selected,time_selected,seatselect[:-1]))
     except:
-        print("Error was occured")
+        print("Error occured")
+    db.commit()
+    return True
+
+
+
+def postbooking():
+    background_label.configure(image=blank)
+    QRcode.pack(padx=100,pady=100)
+    QRbutton.pack()
+    pb()
+
+
+def pb():
+    back_time.place(x=-1234,y=12)
+    book.place(x=-1234,y=622)
+    seat_frame.place(y=60, x=-1135)
+    seat_label.place(x=-1234,y=622)
 
 def back():
     th1.place(x=0,y=-3000)
@@ -174,7 +204,10 @@ def back():
     back_button.place(x=-10000,y=0)
     background_label.configure(image=background_image)
     tab.place(x=-1000,y=-23)
-
+    seat_label.place(x=-1234,y=12)
+    QRcode.place(x=-1234,y=12)
+    QRbutton.place(x=-1234,y=12)
+    advertf.place(x=110,y=130)
 
 def confirm_location():
     global option
@@ -213,6 +246,7 @@ def movieclicked():
     back_time.place(x=-1234,y=12)
     seat_frame.place(x=-1234,y=12)
     seat_label.place(x=-1234,y=12)
+    advertf.place(x=-1110,y=130)
 
 
 def seat_back():
@@ -307,6 +341,8 @@ def movieclicked4(e):
 print(frame)
 #Images 
 
+QR=CTkImage(Image.open('My QR CODE.png'),size=(400,500))
+
 background_image =CTkImage(Image.open("whitegradient .png"), size=(win.winfo_screenwidth(), win.winfo_screenheight()))
 Cinema_image=CTkImage(Image.open('cinema.png'),size=(win.winfo_screenwidth(), win.winfo_screenheight()))
 
@@ -329,12 +365,17 @@ banner=CTkImage(Image.open('Binfo.png'),size=(600,330))
 theater1=CTkImage(Image.open('theater1.png'),size=(1543,750))
 theater2=CTkImage(Image.open('theater2.png'),size=(1543,750))
 
+advert=CTkImage(Image.open('Movie_banner.png'),size=(1300,150))
 
 #background 
 background_label = CTkLabel(win, image=background_image, text="")
 background_label.place(relwidth=1, relheight=1) 
 
 banner_label=CTkFrame(win, width=1536, height=500,corner_radius=15,fg_color="purple",bg_color='white')
+
+advertf=CTkLabel(win,image=advert,fg_color="purple",bg_color='white',text="")
+advertf.place(x=110,y=130)
+
 
 # Movie 1 widgets (Singham)
 
@@ -452,7 +493,11 @@ sinfo.place()
 
 
 
+QRcode=CTkLabel(win,image=QR,text='',fg_color="white")
+QRbutton=CTkButton(win,command=back,text="Back to Home ",font=("TimesNewRoman",20))
 
 
 #if customer!="":
 win.mainloop()
+
+#1234x567

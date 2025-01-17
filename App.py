@@ -67,41 +67,63 @@ def register():
         password.place(x=-200,y=180)
         bk.place(x=-200,y=200)
         win.geometry('600x400')
-
+    
+    def pasword():
+        label.place(x=-111111,y=0)
+        Password=password.get()
+        if len(Password)<=10:
+            label.configure(text="Enter a Password of UPTO 10 Characters")
+            label.pack()
+            starts()
+            return False
+        elif len(Password)>=10:
+            label.place(x=-111111,y=0)
+            return True
+        
     def submit(log):
         global customer
         db = mysql.connector.connect(host="localhost",user="root",password="varchasva",database='Info')
         cursor=db.cursor()
         Email=username.get()
         Password=password.get()
-        try:
-            cursor.execute('create table Customerinformation( Email varchar(50) Primary key ,Password varchar(50))')
-        except:
-            pass
-        if log=="Sign-in":
+        pw=pasword()
+        if pw==True:
             try:
-                cursor.execute('insert into Customerinformation values("'+Email.lower()+'",'+'"'+str(Password)+'")')
-                db.commit()
-                startl()
-                customer=Email.lower().split("@")[0]
+                cursor.execute('create table Customerinformation( Email varchar(50) Primary key ,Password varchar(50))')
             except:
-                print('ERROR or ')
-                print('Account Already exists ')
-    
-        elif log=="Login":
-            cursor.execute("select * from Customerinformation")
-            for i in cursor:
-                print(i)
-                print(i[0],Email.lower(),i[1],Password)
-                if i[0]==Email.lower()and i[1]==Password:
+                pass
+            if log=="Sign-in":
+                try:
+                    cursor.execute("insert into Customerinformation values('{0}','{1}')".format(Email.lower(),str(Password)))
+                    print("Info pushed")
+                    db.commit()
                     customer=Email.lower().split("@")[0]
-                    print(customer)
-                    win.destroy()
-                else:
-                    print("User does not exist")
-                
-        db.commit()
+                    back()
+                    startl()
+                    label.configure(text='Login Again To Proceed')
+                    label.pack()
+                except:
+                    print('Account Already exists ')
+        
+            elif log=="Login":
+                cursor.execute("select * from Customerinformation")
+                for i in cursor:
+                    print(i)
+                    print(i[0],Email.lower(),i[1],Password)
+                    if i[0]==Email.lower()and i[1]==Password:
+                        customer=Email.lower().split("@")[0]
+                        print(customer)
+                        win.destroy()
+                    else:
+                        print("User does not exist")
+                    
+            db.commit()
 
+    label=CTkLabel(win,text="",font=("TimesNewRoman",15))
+
+    bg=CTkImage(Image.open('background.png'),size=(300,400))
+    bglabel = CTkLabel(win, image=bg, text="")
+#    bglabel.place(relwidth=1, relheight=1) 
 
     wel=CTkLabel(win,text=" ",font=("Comic sans",30))
     wel.place(x=150,y=100)
@@ -122,13 +144,15 @@ def register():
     bk=CTkButton(win,text='Back',hover_color="blue",font=('Arial',18),corner_radius=32,command=lambda:back())
     bk.place()
 
-    Lsub=CTkButton(frame,text="Submit-S ",font=('Arial',18),corner_radius=32,command=lambda:submit('Login'))
-    Ssub=CTkButton(frame,text="Submit-L",font=('Arial',18),corner_radius=32,command=lambda:submit("Sign-in"))
+    Lsub=CTkButton(frame,text="Submit-L ",font=('Arial',18),corner_radius=32,command=lambda:submit('Login'))
+    Ssub=CTkButton(frame,text="Submit-S",font=('Arial',18),corner_radius=32,command=lambda:submit("Sign-in"))
 
 
     welcome()
     win.mainloop()
     return customer
+
+
 '''
 if already==False:
     register()
