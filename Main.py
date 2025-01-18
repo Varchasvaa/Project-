@@ -142,8 +142,7 @@ def open_seat(time):
 def book_confirm():
     text=seat_label.cget('text')
     if text=="Seat selected:None":
-        a=CTkLabel(win,text="No Seats are Selected",font=("Timesnewroman",20),text_color="black")
-        a.pack()
+        seat_notselected.pack()
     print(customer,movie_selected,option,time_selected,selected_seat)
 
     response = messagebox.askyesno("Confirmation", "Do you want to proceed?")
@@ -176,6 +175,7 @@ def load():
 
 
 def postbooking():
+    seat_notselected.place(x=-1199,y=-129)
     background_label.configure(image=blank)
     QRcode.pack(padx=100,pady=100)
     QRbutton.pack()
@@ -191,6 +191,7 @@ def pb():
 def back():
     th1.place(x=0,y=-3000)
     th2.place(x=0,y=-5000)
+    mth.place(x=0,y=-5000)
     sframe.place(x=45,y=295)
     Singham.place(x=50,y=300)
     bframe.place(x=(800-5),y=295)
@@ -201,6 +202,7 @@ def back():
     Pushpa.place(x=50+380,y=300)
     Bjohn.place(x=800+380,y=300)
     Bjframe.place(x=795+380,y=295)
+    Bjframe.configure(fg_color="purple")
     back_button.place(x=-10000,y=0)
     background_label.configure(image=background_image)
     tab.place(x=-1000,y=-23)
@@ -230,6 +232,8 @@ def confirm_location():
 
 
 def movieclicked():
+    global customer
+    button.configure(text=customer)
     back_button.place(x=1234,y=12)
     sframe.place(x=-1100,y=0)
     bframe.place(x=-1100,y=0)
@@ -246,24 +250,31 @@ def movieclicked():
     back_time.place(x=-1234,y=12)
     seat_frame.place(x=-1234,y=12)
     seat_label.place(x=-1234,y=12)
-    advertf.place(x=-1110,y=130)
-
+    advertf.place(x=-1110,y=-1130)
+    time1.place(x=-1110,y=-1130)
+    time2.place(x=-1110,y=-1130)
+    time3.place(x=-1110,y=-1130)
+    time4.place(x=-1110,y=-1130)
 
 def seat_back():
-        global selected_seat
-        seat_label.configure(text="Seat selected:None")
-        selected_seat=[]
-        back_button.place(x=1234,y=12)
-        th1.place(x=0,y=100)
-        th2.place(x=0,y=300)
+    global selected_seat,option
+    seat_label.configure(text="Seat selected:None")
+    selected_seat=[]
+    back_button.place(x=1234,y=12)
+    th1.place(x=0,y=100)
+    th2.place(x=0,y=300)
+    if option=="Delhi-NCR":
         time1.place(x=400,y=180)
         time3.place(x=400,y=380)
-        tab.pack(pady=60, padx=30)
-        background_label.configure(image=blank)
-        back_time.place(x=-1234,y=12)
-        seat_frame.place(x=-1234,y=12)
-        seat_label.place(x=-1234,y=12)
-        book.place(x=-1234,y=12)
+    elif option=="Mumbai":
+        time2.place(x=500,y=180)
+        time4.place(x=500,y=380)        
+    tab.pack(pady=60, padx=30)
+    background_label.configure(image=blank)
+    back_time.place(x=-1234,y=12)
+    seat_frame.place(x=-1234,y=12)
+    seat_label.place(x=-1234,y=12)
+    book.place(x=-1234,y=12)
 
 def time_clicked():
         back_button.place(x=-1234,y=12)
@@ -278,33 +289,48 @@ def time_clicked():
 movie_selected=''
 def movieclicked1(e):
     global option,movie_selected
-    movie_selected="bhool bhulaiya 3"
-    if option=="":
-        back()
-        confirm_location()
-        print("worked")
-    else:
-        movieclicked()
-        th1.place(x=0,y=100)
-        th2.place(x=0,y=300)
-        time1.place(x=400,y=180)
-        time3.place(x=400,y=380)
-        tab.pack(pady=60, padx=30)
-
-def movieclicked2(e):
-    global option,movie_selected
     movie_selected="Singham Again"
     if option=="":
         back()
         confirm_location()
         print("worked")
-    else:
+    elif option.strip()=="Delhi-NCR":
         movieclicked()
         th1.place(x=0,y=100)
         th2.place(x=0,y=300)
         time1.place(x=400,y=180)
         time3.place(x=400,y=380)
         tab.pack(pady=60, padx=30)
+    elif option.strip()=="Mumbai":
+        movieclicked()
+        mth.place(x=0,y=100)
+        time2.place(x=500,y=180)
+        time4.place(x=500,y=380)
+        tab.pack(pady=60, padx=30)
+        print("changed")
+
+def movieclicked2(e):
+    global option,movie_selected
+    movie_selected="bhool bhulaiya 3"
+    if option=="":
+        back()
+        confirm_location()
+        print("worked")
+    elif option.strip()=="Delhi-NCR":
+        movieclicked()
+        th1.place(x=0,y=100)
+        th2.place(x=0,y=300)
+        time1.place(x=400,y=180)
+        time3.place(x=400,y=380)
+        tab.pack(pady=60, padx=30)
+    elif option.strip()=="Mumbai":
+        movieclicked()
+        mth.place(x=0,y=100)
+        time2.place(x=500,y=180)
+        time4.place(x=500,y=380)
+        tab.pack(pady=60, padx=30)
+        print("changed")
+
 
 def movieclicked3(e):
     global option,movie_selected
@@ -313,13 +339,20 @@ def movieclicked3(e):
         back()
         confirm_location()
         print("worked")
-    else:
+    elif option.strip()=="Delhi-NCR":
         movieclicked()
         th1.place(x=0,y=100)
         th2.place(x=0,y=300)
         time1.place(x=400,y=180)
         time3.place(x=400,y=380)
         tab.pack(pady=60, padx=30)
+    elif option.strip()=="Mumbai":
+        movieclicked()
+        mth.place(x=0,y=100)
+        time2.place(x=500,y=180)
+        time4.place(x=500,y=380)
+        tab.pack(pady=60, padx=30)
+        print("changed")
 
 def movieclicked4(e):
     global option,movie_selected
@@ -328,14 +361,22 @@ def movieclicked4(e):
         back()
         confirm_location()
         print("worked")
-    else:
+    elif option.strip()=="Delhi-NCR":
         movieclicked()
+        Bjframe.configure(fg_color="white")
         th1.place(x=0,y=100)
         th2.place(x=0,y=300)
         time1.place(x=400,y=180)
-        tab.pack(pady=60, padx=30)
         time3.place(x=400,y=380)
-        Bjframe.place(x=-1999,y=0)
+        tab.pack(pady=60, padx=30)
+    elif option.strip()=="Mumbai":
+        Bjframe.configure(fg_color="white")
+        movieclicked()
+        mth.place(x=0,y=100)
+        time2.place(x=500,y=180)
+        time4.place(x=500,y=380)
+        tab.pack(pady=60, padx=30)
+        print("changed")
 
 
 print(frame)
@@ -344,7 +385,7 @@ print(frame)
 QR=CTkImage(Image.open('My QR CODE.png'),size=(400,500))
 
 background_image =CTkImage(Image.open("whitegradient .png"), size=(win.winfo_screenwidth(), win.winfo_screenheight()))
-Cinema_image=CTkImage(Image.open('cinema.png'),size=(win.winfo_screenwidth(), win.winfo_screenheight()))
+Cinema_image=CTkImage(Image.open('cinema.png'),size=(1536,864))
 
 Movie1=CTkImage(Image.open('Movie1.png'),size=(300,400))
 Movie2=CTkImage(Image.open('Movie2.jpg'),size=(300,400))
@@ -361,7 +402,7 @@ blank=CTkImage(Image.open('Home.png'),size=(win.winfo_screenwidth(), win.winfo_s
 bannerS=CTkImage(Image.open('MovieBanner1.png'),size=(900,430))
 banner=CTkImage(Image.open('Binfo.png'),size=(600,330))
 
-
+mtheater=CTkImage(Image.open('MumTheater.png'),size=(1234,567))
 theater1=CTkImage(Image.open('theater1.png'),size=(1543,750))
 theater2=CTkImage(Image.open('theater2.png'),size=(1543,750))
 
@@ -447,12 +488,13 @@ for button in tab._segmented_button._buttons_dict.values():
 
 th1=CTkLabel(date1,image=theater1,text='',fg_color='white')
 th2=CTkLabel(date1,image=theater2,text='',fg_color='white')
-
+mth=CTkLabel(date1,image=mtheater,text='',fg_color='white')
 #Time slot
 
 time1=CTkButton(date1,command=lambda:open_seat('10:30 am'),text='10:30 am',font=("Arial", 26),fg_color='lightgray',text_color="Black",bg_color="white",hover_color="gray",corner_radius=5)
-time2=CTkButton(date1,command=lambda:open_seat('02:00 pm'),text='02:00 pm',font=("Arial", 26),fg_color='lightgray',text_color="Black",bg_color="white",hover_color="gray",corner_radius=5)
+time2=CTkButton(date1,command=lambda:open_seat('02:00 pm'),text='01:00 pm',font=("Arial", 26),fg_color='lightgray',text_color="Black",bg_color="white",hover_color="gray",corner_radius=5)
 time3=CTkButton(date1,command=lambda:open_seat('09:00 pm'),text='09:00 pm',font=("Arial", 26),fg_color='lightgray',text_color="Black",bg_color="white",hover_color="gray",corner_radius=5)
+time4=CTkButton(date1,command=lambda:open_seat('08:00 pm'),text='08:00 pm',font=("Arial", 26),fg_color='lightgray',text_color="Black",bg_color="white",hover_color="gray",corner_radius=5)
 
 #Home widgets 
 
@@ -491,13 +533,13 @@ Pushinfo.place()
 sinfo=CTkLabel(win,image=infos,fg_color="purple",bg_color="purple",text="")
 sinfo.place()
 
-
+seat_notselected=CTkLabel(win,text="No Seats are Selected",font=("Timesnewroman",20),text_color="black")
 
 QRcode=CTkLabel(win,image=QR,text='',fg_color="white")
 QRbutton=CTkButton(win,command=back,text="Back to Home ",font=("TimesNewRoman",20))
 
 
-#if customer!="":
-win.mainloop()
+if customer!="":
+    win.mainloop()
 
 #1234x567

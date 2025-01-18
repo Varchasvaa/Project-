@@ -5,6 +5,8 @@ x=0
 already=False
 customer=""
 def register():
+    global x
+    x=0
     win=CTk()
 
     win.geometry('600x400')
@@ -14,10 +16,10 @@ def register():
 
     def welcome():
         global x 
-        a="Welcome to <Name> "
+        a="Welcome to MovieYatra "
         wel.configure(text=str(wel.cget("text")+a[x]))
         x+=1
-        if x<=len(a):
+        if x<len(a):
             wel.after(80,welcome)
         
 
@@ -85,14 +87,16 @@ def register():
         db = mysql.connector.connect(host="localhost",user="root",password="varchasva",database='Info')
         cursor=db.cursor()
         Email=username.get()
+        customer=Email.lower().split("@")[0]
         Password=password.get()
-        pw=pasword()
-        if pw==True:
-            try:
-                cursor.execute('create table Customerinformation( Email varchar(50) Primary key ,Password varchar(50))')
-            except:
-                pass
-            if log=="Sign-in":
+        #pw=pasword()
+        try:
+            cursor.execute('create table Customerinformation( Email varchar(50) Primary key ,Password varchar(50))')
+        except:
+            pass
+        if log=="Sign-in":
+            pw=pasword()
+            if pw==True:
                 try:
                     cursor.execute("insert into Customerinformation values('{0}','{1}')".format(Email.lower(),str(Password)))
                     print("Info pushed")
@@ -105,28 +109,35 @@ def register():
                 except:
                     print('Account Already exists ')
         
-            elif log=="Login":
-                cursor.execute("select * from Customerinformation")
-                for i in cursor:
-                    print(i)
-                    print(i[0],Email.lower(),i[1],Password)
-                    if i[0]==Email.lower()and i[1]==Password:
-                        customer=Email.lower().split("@")[0]
-                        print(customer)
-                        win.destroy()
-                    else:
-                        print("User does not exist")
+        elif log=="Login":
+            lb.place(x=-1111)
+            find=False
+            cursor.execute("select * from Customerinformation")
+            for i in cursor:
+#                print(i)
+#                print(i[0],Email.lower(),i[1],Password)
+                if i[0]==Email.lower()and i[1]==Password:
+                    customer=Email.lower().split("@")[0]
+                    print(customer)
+                    find=True
+                    win.destroy()
+#                else:
+#                    lb.configure(text='Incorrect password or email entered')
+#                    lb.pack()
+ #                   print("User does not exist")
+            if find==False:
+                 lb.configure(text='Incorrect password or email entered')
+                 lb.pack()
+                 print("User does not exist")
                     
-            db.commit()
+        db.commit()
 
     label=CTkLabel(win,text="",font=("TimesNewRoman",15))
-
-    bg=CTkImage(Image.open('background.png'),size=(300,400))
-    bglabel = CTkLabel(win, image=bg, text="")
+    lb=CTkLabel(win,text="",font=("TimesNewRoman",15))
 #    bglabel.place(relwidth=1, relheight=1) 
 
     wel=CTkLabel(win,text=" ",font=("Comic sans",30))
-    wel.place(x=150,y=100)
+    wel.place(x=135,y=100)
 
     log=CTkLabel(frame,text="Log In",font=('TimesNewRoman',27),)
     sign=CTkLabel(frame,text="Register",font=('TimesNewRoman',27),)
@@ -144,8 +155,8 @@ def register():
     bk=CTkButton(win,text='Back',hover_color="blue",font=('Arial',18),corner_radius=32,command=lambda:back())
     bk.place()
 
-    Lsub=CTkButton(frame,text="Submit-L ",font=('Arial',18),corner_radius=32,command=lambda:submit('Login'))
-    Ssub=CTkButton(frame,text="Submit-S",font=('Arial',18),corner_radius=32,command=lambda:submit("Sign-in"))
+    Lsub=CTkButton(frame,text="Submit ",font=('Arial',18),corner_radius=32,command=lambda:submit('Login'))
+    Ssub=CTkButton(frame,text="Submit",font=('Arial',18),corner_radius=32,command=lambda:submit("Sign-in"))
 
 
     welcome()
@@ -153,7 +164,7 @@ def register():
     return customer
 
 
-'''
+
 if already==False:
     register()
-    already=True'''
+    already=True
